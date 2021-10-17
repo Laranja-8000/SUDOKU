@@ -8,9 +8,10 @@
 
 void print(int arranjo[N][N])
 {
-     for (int i = 0; i < N; i++)
+    int i,j;
+     for (i = 0; i < N; i++)
       {
-         for (int j = 0; j < N; j++)
+         for (j = 0; j < N; j++)
             printf("%d ",arranjo[i][j]);
          printf("\n");
        }
@@ -20,23 +21,24 @@ void print(int arranjo[N][N])
 int seguranca(int matriz[N][N], int linha,
                        int col, int num)
 {
-     
+    int iniciarLinha = linha - linha % 3,
+                 iniciartCol = col - col % 3; 
+    int x, i, j;
 
-    for (int x = 0; x <= 8; x++)
+    for (x = 0; x <= 8; x++)
         if (matriz[linha][x] == num)
             return 0;
  
 
-    for (int x = 0; x <= 8; x++)
+    for (x = 0; x <= 8; x++)
         if (matriz[x][col] == num)
             return 0;
  
 
-    int iniciarLinha = linha - linha % 3,
-                 iniciartCol = col - col % 3;
+    
    
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
             if (matriz[i + iniciarLinha][j +
                           iniciartCol] == num)
                 return 0;
@@ -47,7 +49,7 @@ int seguranca(int matriz[N][N], int linha,
 
 int resolveSuduko(int matriz[N][N], int linha, int col)
 {
-     
+     int num;
 
     if (linha == N - 1 && col == N)
         return 1;
@@ -63,7 +65,7 @@ int resolveSuduko(int matriz[N][N], int linha, int col)
     if (matriz[linha][col] > 0)
         return resolveSuduko(matriz, linha, col + 1);
  
-    for (int num = 1; num <= N; num++)
+    for (num = 1; num <= N; num++)
     {
          
 
@@ -85,15 +87,13 @@ int resolveSuduko(int matriz[N][N], int linha, int col)
  
 int gera_jogo(int matriz[9][9])
 {
-
-
-    
+    int i,j, numero;
 
     srand(time(NULL));
-
-    int i,j, numero;
+    
     numero = (rand()%9)+1;
 
+    /* preenchendo a primeira diagonal */
     for(i=0;i<3;i++){
         for(j=0;j<3;j++){
             while(seguranca(matriz,i,j,numero)==0){
