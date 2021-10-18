@@ -89,9 +89,15 @@ void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
 	int i,j,aux;
 
 	system("clear");
+	printf("\033[0;37m");
+
+	printf("\n\n");
+
+
 
 	for(i=0;i<=12;i++){
 		printf("\n");
+		printf("\t\t\t");
 		if(i%4==0) 
 			printf(" -------------------------");
 
@@ -129,8 +135,12 @@ void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
 
 
 void show_ASCII(){
-	
-
+printf("\033[0;36m");
+printf("\t\t    ___   _   _   ___   ___   _  _   _   _\n");
+printf("\t\t   | __| | | | | |   \\ | _ | | |/ / | | | |\n");  
+printf("\t\t   |_  | | |_| | | | | ||_|| |   /  | |_| |\n");
+printf("\t\t   |___| |_____| |___| |___| |_|\\_\\ |_____| v1.0\n");
+printf("\033[0;37m");
 }
 
 
@@ -139,14 +149,15 @@ void exibe_menu(int opt){
 	int i;
 
 	system("clear");
+	show_ASCII();
 	opt = 3 - opt;
-	printf("\nSUDOKU v0.0\n\n");
-	printf("  JOGAR\n  HELP\n  SAIR\n");
+	printf("\n\n");
+	printf("\t\t\t\t  JOGAR\n\t\t\t\t  HELP\n\t\t\t\t  SAIR\n");
 
 	for(i=opt;i>=0;i--){
 		printf("\033[F");
 	}
-	printf(">\b");
+	printf("\t\t\t\t>\b");
 }
 
 int menu_inicial(){
@@ -181,16 +192,18 @@ int menu_inicial(){
 
 void help(){
 	system("clear");
-	printf("Sudoku, por vezes escrito Su Doku (数独 'sūdoku') é um jogo baseado na colocação lógica de números.\n");
-	printf("O objetivo do jogo é a colocação de números de 1 a 9 em cada uma das células vazias numa grade de 9x9,\n"); 
-	printf("constituída por 3x3 subgrades chamadas regiões. O quebra-cabeça contém algumas pistas iniciais,\n"); 
-	printf("que são números inseridos em algumas células, de maneira a permitir uma indução ou dedução dos números\n");
-	printf("em células que estejam vazias. Cada coluna, linha e região só pode ter um número de cada um dos 1 a 9.\n");
-	printf("Resolver o problema requer apenas raciocínio lógico e algum tempo.\n\n");
-	printf("Utilize as teclas direcionais para navegas pelas coordenadas da grade, e as teclas numéricas para preencher.\n");
-	printf("O jogo encerra sozinho, uma vez que seja solucionado.\n\n");
-	printf("Em qualquer momento durante o jogo, aperte a Barra de Espaço para retornar ao menu principal\n\n");
-	printf("Pressione qualquer tecla para voltar ao menu inicial.\n");
+	printf("\tSudoku, por vezes escrito Su Doku (数独 'sūdoku') é um jogo baseado na \n");
+	printf("colocação lógica de números. O objetivo do jogo é a colocação de números \n");
+	printf("de 1 a 9 em cada uma das células vazias numa grade de 9x9,constituída por\n"); 
+	printf("3x3 subgrades chamadas regiões. O quebra-cabeça contém algumas pistas \n"); 
+	printf("pistas inicias, que são números inseridos em algumas células, de maneira\n");
+	printf("a permitir uma indução ou dedução dos números em células que estejam vazias.\n");
+	printf("Cada coluna, linha e região só pode ter um número de cada um dos 1 a 9.\n");
+	printf("\tResolver o problema requer apenas raciocínio lógico e algum tempo.\n\n");
+	printf("\tUtilize as teclas direcionais para navegas pelas coordenadas da grade, e as teclas numéricas para preencher.\n");
+	printf("\tO jogo encerra sozinho, uma vez que seja solucionado.\n\n");
+	printf("\tEm qualquer momento durante o jogo, aperte a Barra de Espaço para retornar ao menu principal\n\n");
+	printf("\tPressione qualquer tecla para voltar ao menu inicial.\n");
 	input_direcional();
 }
  
@@ -310,7 +323,7 @@ int game_over(int matriz[9][9]){
 void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 	/* Movimentação pelas casas do tabuleiro. Chama a função exibe_grade() passando as coordenadas do cursor */
 	
-	int x=4, y=3;
+	int x=4+3+9+12, y=3+2;
 	int tecla_apertada=0;
 	
 	exibe_grade(matriz,matriz_secundaria);
@@ -354,7 +367,7 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 
 		/* calculo pra posicionar o cursor no tabuleiro impresso */
 
-		gotoxy(4 + 2*(x + (x/3)), 3 + y + y/3 );
+		gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
 
 	}
 
@@ -421,15 +434,17 @@ void exibe_dificuldades(int opt){
 	int i;
 
 	system("clear");
-	opt = 3 - opt;
-	printf("\nQual dificuldade?\n\n");
 	show_ASCII();
-	printf("  Fácil\n  Médio\n  Hardcore\n");
+
+	opt = 3 - opt;
+	printf("\n\t\t\t\tQual dificuldade?\n\n");
+	
+	printf("\t\t\t\t  Fácil\n\t\t\t\t  Médio\n\t\t\t\t  Hardcore\n");
 
 	for(i=opt;i>=0;i--){
 		printf("\033[F");
 	}
-	printf(">\b");
+	printf("\t\t\t\t>\b");
 }
 
 int dificuldade(){
@@ -437,9 +452,9 @@ int dificuldade(){
 
 	/*
 	OPCOES:
-	1 - Fácil (60 pistas)
-	2 - Médio (40 pistas)
-	3 - Hardcore (20 pistas)
+	1 - Fácil (60 pistas +-)
+	2 - Médio (40 pistas +-)
+	3 - Hardcore (20 pistas +-)
 	*/
 
 	while(tecla_apertada!=13){
@@ -467,7 +482,7 @@ int dificuldade(){
 int main(){
 	
 	int next;
-	int i, dificuldade_selecionada;
+	int dificuldade_selecionada;
 	int coordenadas_sorteadas[81];
 	
 
