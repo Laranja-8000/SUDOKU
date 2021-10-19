@@ -192,24 +192,12 @@ if(checa_SO()){
 }
 
 
-void exibe_menu(int opt){
-	
-	int i;
-
-	limpa_tela();
-	show_ASCII();
-	opt = 3 - opt;
-	printf("\n\n");
-	printf("\t\t\t\t  JOGAR\n\t\t\t\t  HELP\n\t\t\t\t  SAIR\n");
-
-	for(i=opt;i>=0;i--){
-		printf("\033[F");
-	}
-	printf("\t\t\t\t>\b");
-}
 
 int menu_inicial(){
 	int opcao=1, tecla_apertada=0;
+	int i, opt;
+
+	opt = 1;
 
 	/*
 	OPCOES:
@@ -217,10 +205,19 @@ int menu_inicial(){
 	2 - AJUDA
 	3 - FECHAR
 	*/
-
+	limpa_tela();
+	show_ASCII();
+	printf("\n\n");
 	while(tecla_apertada!=13){
 
-		exibe_menu(opcao);
+		opt = 3 - opt;
+		
+		printf("\t\t\t\t  JOGAR\n\t\t\t\t  HELP\n\t\t\t\t  SAIR\n");
+
+		for(i=opt;i>=0;i--){
+			printf("\033[F");
+		}
+		printf("\t\t\t\t>\b");
 
 		tecla_apertada = input_direcional();
 		if(tecla_apertada==1){
@@ -232,7 +229,16 @@ int menu_inicial(){
 			if(opcao<3){
 				opcao++;
 			}
-		}	
+		}
+
+		printf("\033[F");
+		printf("\n");
+		for(i=opt;i<2;i++){
+			printf("\033[F");
+		}
+
+		opt = opcao;
+
 	}
 
 	return opcao;
@@ -240,7 +246,7 @@ int menu_inicial(){
 
 void help(){
 	limpa_tela();
-	printf("\tSudoku, por vezes escrito Su Doku eh um jogo baseado na \n");
+	printf("\tSudoku, por vezes escrito Su Doku, eh um jogo baseado na \n");
 	printf("colocacao logica de numeros. O objetivo do jogo eh a colocacao de numeros \n");
 	printf("de 1 a 9 em cada uma das celulas vazias numa grade de 9x9, constituida por\n"); 
 	printf("3x3 subgrades chamadas regioes. O quebra-cabeca contem algumas pistas \n"); 
@@ -372,6 +378,7 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 	/* MovimentaÃ§Ã£o pelas casas do tabuleiro. Chama a funÃ§Ã£o exibe_grade() passando as coordenadas do cursor */
 	
 	int x=4+3+9+12, y=3+2;
+	int aux;
 	int tecla_apertada=0;
 	
 	exibe_grade(matriz,matriz_secundaria);
@@ -410,12 +417,35 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 			}
 		}
 
+		gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
+			// HORA DO SHOW
 
-		exibe_grade(matriz,matriz_secundaria);
+			if(matriz[y][x]==0){
+							printf("-");
+						}
+			else{
+							aux = matriz[y][x];
+							matriz[y][x] = 0;
+							if(seguranca(matriz,y,x,aux)==0){
+								if(matriz_secundaria[y][x]==1){
+									printf("\033[0;31m"); /* vermelho */
+								}
+							}
+							else{
+								if(matriz_secundaria[y][x]==1)
+									printf("\033[0;32m"); /* verde */
+							}
+							matriz[y][x] = aux;
+							printf("%d",matriz[y][x]);
+							printf("\033[0;37m"); /* branco */
+			}
+		printf("\b");
+		
+		//exibe_grade(matriz,matriz_secundaria);
 
 		/* calculo pra posicionar o cursor no tabuleiro impresso */
 
-		gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
+		
 
 	}
 
@@ -477,37 +507,34 @@ void retira_casas(int coordenadas_sorteadas[], int matriz[9][9], int matriz_secu
 }
 
 /* ================================================================================================================== */
-void exibe_dificuldades(int opt){
-	
-	int i;
 
-	limpa_tela();
-	show_ASCII();
 
-	opt = 3 - opt;
-	printf("\n\t\t\t\tQual dificuldade?\n\n");
-	
-	printf("\t\t\t\t  Facil\n\t\t\t\t  Medio\n\t\t\t\t  Hardcore\n");
-
-	for(i=opt;i>=0;i--){
-		printf("\033[F");
-	}
-	printf("\t\t\t\t>\b");
-}
 
 int dificuldade(){
 	int opcao=1, tecla_apertada=0;
+	int i, opt;
+
+	opt = 1;
 
 	/*
 	OPCOES:
-	1 - FÃ¡cil (60 pistas +-)
-	2 - MÃ©dio (40 pistas +-)
-	3 - Hardcore (20 pistas +-)
+	1 - JOGAR
+	2 - AJUDA
+	3 - FECHAR
 	*/
-
+	limpa_tela();
+	show_ASCII();
+	printf("\n\t\t\t\tQual dificuldade?\n\n");
 	while(tecla_apertada!=13){
 
-		exibe_dificuldades(opcao);
+		opt = 3 - opt;
+		
+		printf("\t\t\t\t  FACIL\n\t\t\t\t  MEDIO\n\t\t\t\t  HARDCORE\n");
+
+		for(i=opt;i>=0;i--){
+			printf("\033[F");
+		}
+		printf("\t\t\t\t>\b");
 
 		tecla_apertada = input_direcional();
 		if(tecla_apertada==1){
@@ -519,7 +546,16 @@ int dificuldade(){
 			if(opcao<3){
 				opcao++;
 			}
-		}	
+		}
+
+		printf("\033[F");
+		printf("\n");
+		for(i=opt;i<2;i++){
+			printf("\033[F");
+		}
+
+		opt = opcao;
+
 	}
 
 	return opcao;
@@ -539,7 +575,7 @@ int main(){
 
 	int Jogo1[N][N];
 
-    /* a matriz que diz quais casas sÃ£o fixas ou mutÃ¡veis */
+    /* a matriz que diz quais casas são fixas ou mutáveis */
     int Jogo2[N][N];
 
 	    
