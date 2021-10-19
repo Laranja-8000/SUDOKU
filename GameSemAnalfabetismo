@@ -1,0 +1,580 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>
+
+#define N 9
+
+#ifdef _WIN32
+#include <conio.h>
+#endif
+
+
+int checa_SO(){
+	#ifdef _WIN32
+
+		return 1;
+	#endif
+	return 0;
+
+}
+
+void limpa_tela(){
+
+	if(checa_SO == 0){
+		system("clear");
+	}
+	else{
+		system("cls");
+	}
+}
+
+void limpar_buffer(){
+	/* Limpando o buffer */
+	char buffer;
+    do{
+            buffer = getchar();
+        }while(buffer != '\n');
+}
+
+int input_direcional(){
+	char c;
+	if(checa_SO()==0){
+		/* coloca o terminal em raw */
+		system ("/bin/stty raw");
+		
+		if((c = getchar())=='\033'){
+			c = getchar();
+			if(c == '['){
+				/* Um direcional foi detectado */
+				printf("\b\b\b\b    \b\b\b\b");
+				c = getchar();
+				
+				switch(c){
+					case 'A':
+						c = 1;
+						break;
+
+					case 'B':
+						c = 2;
+						break;
+
+					case 'D':
+						c= 3;
+						break;
+
+					case 'C':
+						c=4;
+						break;
+				}
+			}
+
+		}
+		else{
+			printf("\b \b");
+		}
+
+		/* Retorna o terminal pra cooked */
+		system ("/bin/stty cooked");
+	}
+	else{
+		c = getch();
+		switch(c){
+			case 72:
+				c = 1;
+				break;
+			case 80:
+				c = 2;
+				break;
+			case 75:
+				c = 3;
+				break;
+			case 77:
+				c = 4;
+				break;
+		}
+	}
+	
+	
+	return c;
+}
+
+int seguranca(int matriz[N][N], int linha,
+                       int col, int num){
+
+	/* Verifica se o conteÃºdo de uma posiÃ§Ã£o Ã© vÃ¡lido ou nÃ£o */
+
+    int iniciarLinha = linha - linha % 3,
+                 iniciartCol = col - col % 3; 
+    int x, i, j;
+
+    for (x = 0; x <= 8; x++)
+        if (matriz[linha][x] == num)
+            return 0;
+ 
+    for (x = 0; x <= 8; x++)
+        if (matriz[x][col] == num)
+            return 0;
+   
+    for (i = 0; i < 3; i++)
+        for (j = 0; j < 3; j++)
+            if (matriz[i + iniciarLinha][j +
+                          iniciartCol] == num)
+                return 0;
+ 
+    return 1;
+}
+
+void gotoxy(int x,int y)
+{
+    printf("%c[%d;%df",0x1B,y,x);
+}
+
+void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
+	int i,j,aux;
+
+	limpa_tela();
+	printf("\033[0;37m");
+
+	printf("\n\n");
+
+
+
+	for(i=0;i<=12;i++){
+		printf("\n");
+		printf("\t\t\t");
+		if(i%4==0) 
+			printf(" -------------------------");
+
+		
+		else{
+			for(j=0;j<13;j++){
+				if(j%4 != 0)
+					if(arranjo[i-(1+i/4)][j-(1+j/4)]==0){
+						printf(" -");
+					}
+					else{
+						aux = arranjo[i-(1+i/4)][j-(1+j/4)];
+						arranjo[i-(1+i/4)][j-(1+j/4)] = 0;
+						if(seguranca(arranjo,i-(1+i/4),j-(1+j/4),aux)==0){
+							if(matriz_secundaria[i-(1+i/4)][j-(1+j/4)]==1){
+								printf("\033[0;31m"); /* vermelho */
+							}
+						}
+						else{
+							if(matriz_secundaria[i-(1+i/4)][j-(1+j/4)]==1)
+								printf("\033[0;32m"); /* verde */
+						}
+						arranjo[i-(1+i/4)][j-(1+j/4)] = aux;
+						printf(" %d",arranjo[i-(1+i/4)][j-(1+j/4)]);
+						printf("\033[0;37m"); /* branco */
+					}
+				else
+					printf(" |");
+			}
+		}
+	}
+	puts("\n");	
+	
+}
+
+
+void show_ASCII(){
+printf("\033[0;36m");
+printf("\t\t    ___   _   _   ___   ___   _  _   _   _\n");
+printf("\t\t   | __| | | | | |   \\ | _ | | |/ / | | | |\n");  
+printf("\t\t   |_  | | |_| | | | | ||_|| |   /  | |_| |\n");
+printf("\t\t   |___| |_____| |___| |___| |_|\\_\\ |_____| v1.0\n");
+printf("\033[0;37m");
+if(checa_SO()){
+	printf("windows");
+}
+}
+
+
+void exibe_menu(int opt){
+	
+	int i;
+
+	limpa_tela();
+	show_ASCII();
+	opt = 3 - opt;
+	printf("\n\n");
+	printf("\t\t\t\t  JOGAR\n\t\t\t\t  HELP\n\t\t\t\t  SAIR\n");
+
+	for(i=opt;i>=0;i--){
+		printf("\033[F");
+	}
+	printf("\t\t\t\t>\b");
+}
+
+int menu_inicial(){
+	int opcao=1, tecla_apertada=0;
+
+	/*
+	OPCOES:
+	1 - JOGAR
+	2 - AJUDA
+	3 - FECHAR
+	*/
+
+	while(tecla_apertada!=13){
+
+		exibe_menu(opcao);
+
+		tecla_apertada = input_direcional();
+		if(tecla_apertada==1){
+			if(opcao>1){
+				opcao--;
+			}
+		}
+		if(tecla_apertada==2){
+			if(opcao<3){
+				opcao++;
+			}
+		}	
+	}
+
+	return opcao;
+}
+
+void help(){
+	limpa_tela();
+	printf("\tSudoku, por vezes escrito Su Doku eh um jogo baseado na \n");
+	printf("colocacao logica de numeros. O objetivo do jogo eh a colocacao de numeros \n");
+	printf("de 1 a 9 em cada uma das celulas vazias numa grade de 9x9, constituida por\n"); 
+	printf("3x3 subgrades chamadas regioes. O quebra-cabeca contem algumas pistas \n"); 
+	printf("pistas inicias, que sao numeros inseridos em algumas celulas, de maneira\n");
+	printf("a permitir uma inducao ou deducao dos numeros em celulas que estejam vazias.\n");
+	printf("Cada coluna, linha e regiao so pode ter um numero de cada um dos 1 a 9.\n");
+	printf("\tResolver o problema requer apenas raciocinio logico e algum tempo.\n\n");
+	printf("\tUtilize as teclas direcionais para navegas pelas coordenadas da grade, e as teclas numericas para preencher.\n");
+	printf("\tO jogo encerra sozinho, uma vez que seja solucionado.\n\n");
+	printf("\tEm qualquer momento durante o jogo, aperte a Barra de Espaco para retornar ao menu principal\n\n");
+	printf("\tPressione qualquer tecla para voltar ao menu inicial.\n");
+	input_direcional();
+}
+ 
+
+int resolveSuduko(int matriz[N][N], int linha, int col)
+{
+     int num;
+
+    if (linha == N - 1 && col == N)
+        return 1; 
+
+    if (col == N)
+    {
+        linha++;
+        col = 0;
+    }   
+
+    if (matriz[linha][col] > 0)
+        return resolveSuduko(matriz, linha, col + 1);
+ 
+    for (num = 1; num <= N; num++)
+    {   
+        if (seguranca(matriz, linha, col, num)==1)
+        {
+            matriz[linha][col] = num;
+            if (resolveSuduko(matriz, linha, col + 1)==1)
+                return 1;
+        }
+        matriz[linha][col] = 0;
+    }
+    return 0;
+}
+ 
+int gera_jogo(int matriz[9][9])
+{
+    int i,j, numero;
+
+    /* a matriz contendo os conteÃºdos das casas do tabuleiro */
+	for(i=0;i<9;i++){
+		for(j=0;j<9;j++){
+			matriz[i][j] = 0;
+		}
+	}
+    
+    srand(time(NULL));
+    numero = (rand()%9)+1;
+
+    /* preenchendo a primeira diagonal */
+    for(i=0;i<3;i++){
+        for(j=0;j<3;j++){
+            while(seguranca(matriz,i,j,numero)==0){
+                numero = (rand()%9)+1;
+            }
+            matriz[i][j] = numero;
+        }
+    }
+    for(i=3;i<6;i++){
+        for(j=3;j<6;j++){
+            while(seguranca(matriz,i,j,numero)==0){
+                numero = (rand()%9)+1;
+            }
+            matriz[i][j] = numero;
+        }
+    }
+    for(i=6;i<9;i++){
+        for(j=6;j<9;j++){
+            while(seguranca(matriz,i,j,numero)==0){
+                numero = (rand()%9)+1;
+            }
+            matriz[i][j] = numero;
+        }
+    }
+    if (resolveSuduko(matriz, 0, 0)==1)
+        return 1;
+    return 0;
+}
+
+int verificar_sorteio_linhas_colunas(int num_linhas_sorteadas[], int num_colunas_sorteadas[]){ 
+    int i,j,k=1; 
+    for(i = 0; i < 17; i++){ 
+        for(j = k; j < 17; j++){ 
+            if(num_linhas_sorteadas[i] == num_linhas_sorteadas[j] && num_colunas_sorteadas[i] == num_colunas_sorteadas[j]){ 
+                return 1; 
+            } 
+        } 
+        k = k + 1; 
+    } 
+ 
+    return 0;    
+}
+
+
+
+int game_over(int matriz[9][9]){
+
+	int i,j,aux;
+	for(i=0;i<9;i++){
+		for(j=0;j<9;j++){
+			if(matriz[i][j]==0) 
+				return 1;
+			else{
+				aux = matriz[i][j];
+				matriz[i][j]=0;
+				if((seguranca(matriz,i,j,aux))==0){
+					matriz[i][j] = aux;
+					return 1;
+				}
+				matriz[i][j] = aux;
+			}
+		}
+	}
+	return 0;
+}
+
+/* ================================================================================================================== */
+
+void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
+	/* MovimentaÃ§Ã£o pelas casas do tabuleiro. Chama a funÃ§Ã£o exibe_grade() passando as coordenadas do cursor */
+	
+	int x=4+3+9+12, y=3+2;
+	int tecla_apertada=0;
+	
+	exibe_grade(matriz,matriz_secundaria);
+	gotoxy(x,y);
+
+	x = 0;
+	y = 0;
+
+	while(tecla_apertada!=32 && game_over(matriz)!=0){
+		tecla_apertada = input_direcional();
+
+		if(tecla_apertada == 2){ /* baixo */
+			if(y<8){
+				y++;
+			}
+		}
+		if(tecla_apertada ==1){ /* cima */
+			if(y>0){
+				y--;
+			}
+		}
+		if(tecla_apertada == 3){ /* esquerda */
+			if(x>0){
+				x--;
+			}
+		}
+		if(tecla_apertada == 4){ /* direita */
+			if(x<8){
+				x++;
+			}
+		}
+
+		if(tecla_apertada>='0' && tecla_apertada<='9'){
+			if(matriz_secundaria[y][x]==1){
+				matriz[y][x] = tecla_apertada-48;
+			}
+		}
+
+
+		exibe_grade(matriz,matriz_secundaria);
+
+		/* calculo pra posicionar o cursor no tabuleiro impresso */
+
+		gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
+
+	}
+
+	if(game_over(matriz)==0){
+		limpa_tela();
+		gotoxy(0,0);
+		printf("Parabens, voce venceu! *clap clap*\n");
+		input_direcional();
+	}
+	gotoxy(0,0);
+}
+
+
+
+/* ================================================================================================================== */
+
+void sorterar_linhas_colunas(int coordenadas_sorteadas[], int quantos){ 
+    /* pega um array de 'quantos' inteiros e preenche com dezenas aleatÃ³rias Ãºnicas representando coordendas */
+
+    int linha_sorteada, 
+        coluna_sorteada, 
+        i, 
+        num_linhas_sorteadas[81], 
+        num_colunas_sorteadas[81]; 
+
+    for(i=0;i<81;i++) coordenadas_sorteadas[i] = -1;
+    srand(time(NULL)); 
+ 
+ 	do{
+	    for(i = 0; i <= quantos; i++){ 
+	        linha_sorteada = rand() % 9; 
+	        coluna_sorteada = rand() % 9; 
+	        num_linhas_sorteadas[i] = linha_sorteada; 
+	        num_colunas_sorteadas[i] = coluna_sorteada; 
+	    } 
+ 	}
+    while(verificar_sorteio_linhas_colunas(num_linhas_sorteadas, num_colunas_sorteadas)); 
+
+    for(i = 0; i<=quantos; i++){ 
+        /* printf("posicao %d - (linha,coluna): (%d, %d)\n", i+1, num_linhas_sorteadas[i], num_colunas_sorteadas[i]); */
+        coordenadas_sorteadas[i] = 10*num_linhas_sorteadas[i] + num_colunas_sorteadas[i]; 
+    }
+} 
+
+void retira_casas(int coordenadas_sorteadas[], int matriz[9][9], int matriz_secundaria[9][9], int n){
+
+	int i,j;
+
+	for(i=0;i<9;i++){
+		for(j=0;j<9;j++){
+			matriz_secundaria[i][j] = 0;
+		}
+	}
+
+	for(i=0;i<=n;i++){
+		matriz[coordenadas_sorteadas[i]/10][coordenadas_sorteadas[i]%10] = 0;
+		matriz_secundaria[coordenadas_sorteadas[i]/10][coordenadas_sorteadas[i]%10] = 1;
+	}
+}
+
+/* ================================================================================================================== */
+void exibe_dificuldades(int opt){
+	
+	int i;
+
+	limpa_tela();
+	show_ASCII();
+
+	opt = 3 - opt;
+	printf("\n\t\t\t\tQual dificuldade?\n\n");
+	
+	printf("\t\t\t\t  Facil\n\t\t\t\t  Medio\n\t\t\t\t  Hardcore\n");
+
+	for(i=opt;i>=0;i--){
+		printf("\033[F");
+	}
+	printf("\t\t\t\t>\b");
+}
+
+int dificuldade(){
+	int opcao=1, tecla_apertada=0;
+
+	/*
+	OPCOES:
+	1 - FÃ¡cil (60 pistas +-)
+	2 - MÃ©dio (40 pistas +-)
+	3 - Hardcore (20 pistas +-)
+	*/
+
+	while(tecla_apertada!=13){
+
+		exibe_dificuldades(opcao);
+
+		tecla_apertada = input_direcional();
+		if(tecla_apertada==1){
+			if(opcao>1){
+				opcao--;
+			}
+		}
+		if(tecla_apertada==2){
+			if(opcao<3){
+				opcao++;
+			}
+		}	
+	}
+
+	return opcao;
+}
+
+
+/* ================================================================================================================== */
+int main(){
+	
+	int next;
+	int dificuldade_selecionada;
+	int coordenadas_sorteadas[81];
+	
+	if(checa_SO()==1) setlocale(LC_ALL,"Portuguese");
+
+	
+
+	int Jogo1[N][N];
+
+    /* a matriz que diz quais casas sÃ£o fixas ou mutÃ¡veis */
+    int Jogo2[N][N];
+
+	    
+	next = menu_inicial();	
+
+	while(next!=3){
+		if(next==1){	
+			
+			gera_jogo(Jogo1);
+
+			/* gera posiÃ§Ãµes zeradas pelo parÃ¢metro 'dificuldade' */
+			/* menor que 11 trava o jogo (bug)*/
+			dificuldade_selecionada = dificuldade();
+
+			sorterar_linhas_colunas(coordenadas_sorteadas,1+dificuldade_selecionada*20);
+
+    		retira_casas(coordenadas_sorteadas,Jogo1,Jogo2,1+dificuldade_selecionada*20);
+
+    		
+    		
+			movimento(Jogo1,Jogo2);
+			
+		}
+		if(next==2){
+			help();
+		}
+		if(next==3){			
+
+		}
+
+		next = menu_inicial();
+	}
+
+	limpa_tela();
+	
+
+	return 0;
+}
