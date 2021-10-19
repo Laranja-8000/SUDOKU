@@ -5,20 +5,20 @@
 
 #define N 9
 
+/* Diretivas para verificar o sistema operacional */
 #ifdef _WIN32
 #include <conio.h>
+#define checa_SO 1
 #endif
 
-
-int checa_SO(){
-	#ifdef _WIN32
-
-		return 1;
-	#endif
+#ifdef linux
+char getch(){
 	return 0;
+};
+#define checa_SO 0
+#endif
 
-}
-
+/* Função para limpar o console */
 void limpa_tela(){
 
 	if(checa_SO == 0){
@@ -29,6 +29,8 @@ void limpa_tela(){
 	}
 }
 
+
+/* Função para limpar o buffer */
 void limpar_buffer(){
 	/* Limpando o buffer */
 	char buffer;
@@ -37,9 +39,10 @@ void limpar_buffer(){
         }while(buffer != '\n');
 }
 
+/* Implementação de um equivalente em linux ao getch() */
 int input_direcional(){
 	char c;
-	if(checa_SO()==0){
+	if(checa_SO==0){
 		/* coloca o terminal em raw */
 		system ("/bin/stty raw");
 		
@@ -99,10 +102,11 @@ int input_direcional(){
 	return c;
 }
 
+
 int seguranca(int matriz[N][N], int linha,
                        int col, int num){
 
-	/* Verifica se o conteÃºdo de uma posiÃ§Ã£o Ã© vÃ¡lido ou nÃ£o */
+	/* Verifica se o conteudo de uma posicao eh valido ou nao */
 
     int iniciarLinha = linha - linha % 3,
                  iniciartCol = col - col % 3; 
@@ -125,11 +129,13 @@ int seguranca(int matriz[N][N], int linha,
     return 1;
 }
 
+/* Reimplementando gotoxy para ambos sistemas */
 void gotoxy(int x,int y)
 {
     printf("%c[%d;%df",0x1B,y,x);
 }
 
+/* Atualiza o tabuleiro mostrado, linux */
 void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
 	int i,j,aux;
 
@@ -178,7 +184,7 @@ void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
 	
 }
 
-
+/* Arte conceitual */
 void show_ASCII(){
 printf("\033[0;36m");
 printf("\t\t    ___   _   _   ___   ___   _  _   _   _\n");
@@ -186,13 +192,13 @@ printf("\t\t   | __| | | | | |   \\ | _ | | |/ / | | | |\n");
 printf("\t\t   |_  | | |_| | | | | ||_|| |   /  | |_| |\n");
 printf("\t\t   |___| |_____| |___| |___| |_|\\_\\ |_____| v1.0\n");
 printf("\033[0;37m");
-if(checa_SO()){
+if(checa_SO){
 	printf("windows");
 }
 }
 
 
-
+/* Menu inicial do jogo */
 int menu_inicial(){
 	int opcao=1, tecla_apertada=0;
 	int i, opt;
@@ -244,6 +250,7 @@ int menu_inicial(){
 	return opcao;
 }
 
+/* Texto informativo de ajuda*/
 void help(){
 	limpa_tela();
 	printf("\tSudoku, por vezes escrito Su Doku, eh um jogo baseado na \n");
@@ -261,7 +268,7 @@ void help(){
 	input_direcional();
 }
  
-
+/* Resolve um jogo sudoku com casas pre prontas de modo mais imediato */
 int resolveSuduko(int matriz[N][N], int linha, int col)
 {
      int num;
@@ -291,6 +298,7 @@ int resolveSuduko(int matriz[N][N], int linha, int col)
     return 0;
 }
  
+/* Gera um jogo sudoku valido */
 int gera_jogo(int matriz[9][9])
 {
     int i,j, numero;
@@ -335,22 +343,10 @@ int gera_jogo(int matriz[9][9])
     return 0;
 }
 
-int verificar_sorteio_linhas_colunas(int num_linhas_sorteadas[], int num_colunas_sorteadas[]){ 
-    int i,j,k=1; 
-    for(i = 0; i < 17; i++){ 
-        for(j = k; j < 17; j++){ 
-            if(num_linhas_sorteadas[i] == num_linhas_sorteadas[j] && num_colunas_sorteadas[i] == num_colunas_sorteadas[j]){ 
-                return 1; 
-            } 
-        } 
-        k = k + 1; 
-    } 
- 
-    return 0;    
-}
 
 
 
+/* Checa se o jogo foi terminado */
 int game_over(int matriz[9][9]){
 
 	int i,j,aux;
@@ -374,8 +370,9 @@ int game_over(int matriz[9][9]){
 
 /* ================================================================================================================== */
 
+/* Atualizacao do tabuleiro no console e movimentação */
 void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
-	/* MovimentaÃ§Ã£o pelas casas do tabuleiro. Chama a funÃ§Ã£o exibe_grade() passando as coordenadas do cursor */
+	
 	
 	int x=4+3+9+12, y=3+2;
 	int aux;
@@ -419,7 +416,7 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 
 		gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
 			// HORA DO SHOW
-
+		if(checa_SO==1){
 			if(matriz[y][x]==0){
 							printf("-");
 						}
@@ -439,7 +436,14 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 							printf("%d",matriz[y][x]);
 							printf("\033[0;37m"); /* branco */
 			}
-		printf("\b");
+			printf("\b");
+		}
+		else{
+			gotoxy(0,0);
+			exibe_grade(matriz,matriz_secundaria);
+			gotoxy(4+3+9+12 + 2*(x + (x/3)), 3+2 + y + y/3 );
+		}
+		
 		
 		//exibe_grade(matriz,matriz_secundaria);
 
@@ -461,6 +465,21 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 
 
 /* ================================================================================================================== */
+/* Para sortear as casa a serem retiradas */
+
+int verificar_sorteio_linhas_colunas(int num_linhas_sorteadas[], int num_colunas_sorteadas[]){ 
+    int i,j,k=1; 
+    for(i = 0; i < 17; i++){ 
+        for(j = k; j < 17; j++){ 
+            if(num_linhas_sorteadas[i] == num_linhas_sorteadas[j] && num_colunas_sorteadas[i] == num_colunas_sorteadas[j]){ 
+                return 1; 
+            } 
+        } 
+        k = k + 1; 
+    } 
+ 
+    return 0;    
+}
 
 void sorterar_linhas_colunas(int coordenadas_sorteadas[], int quantos){ 
     /* pega um array de 'quantos' inteiros e preenche com dezenas aleatÃ³rias Ãºnicas representando coordendas */
@@ -509,7 +528,7 @@ void retira_casas(int coordenadas_sorteadas[], int matriz[9][9], int matriz_secu
 /* ================================================================================================================== */
 
 
-
+/* Menu de selecao de dificuldade */
 int dificuldade(){
 	int opcao=1, tecla_apertada=0;
 	int i, opt;
@@ -569,7 +588,7 @@ int main(){
 	int dificuldade_selecionada;
 	int coordenadas_sorteadas[81];
 	
-	if(checa_SO()==1) setlocale(LC_ALL,"Portuguese");
+	if(checa_SO==1) setlocale(LC_ALL,"Portuguese");
 
 	
 
