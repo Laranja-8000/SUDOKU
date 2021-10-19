@@ -1,8 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
 
 #define N 9
+
+#ifdef _WIN32
+#include <conio.h>
+#endif
+
+
+int checa_SO(){
+	#ifdef _WIN32
+
+		return 1;
+	#endif
+	return 0;
+
+}
+
+void limpa_tela(){
+
+	if(checa_SO == 0){
+		system("clear");
+	}
+	else{
+		system("cls");
+	}
+}
 
 void limpar_buffer(){
 	/* Limpando o buffer */
@@ -14,42 +39,62 @@ void limpar_buffer(){
 
 int input_direcional(){
 	char c;
-	/* coloca o terminal em raw */
-	system ("/bin/stty raw");
-	
-	if((c = getchar())=='\033'){
-		c = getchar();
-		if(c == '['){
-			/* Um direcional foi detectado */
-			printf("\b\b\b\b    \b\b\b\b");
+	if(checa_SO()==0){
+		/* coloca o terminal em raw */
+		system ("/bin/stty raw");
+		
+		if((c = getchar())=='\033'){
 			c = getchar();
-			
-			switch(c){
-				case 'A':
-					c = 1;
-					break;
+			if(c == '['){
+				/* Um direcional foi detectado */
+				printf("\b\b\b\b    \b\b\b\b");
+				c = getchar();
+				
+				switch(c){
+					case 'A':
+						c = 1;
+						break;
 
-				case 'B':
-					c = 2;
-					break;
+					case 'B':
+						c = 2;
+						break;
 
-				case 'D':
-					c= 3;
-					break;
+					case 'D':
+						c= 3;
+						break;
 
-				case 'C':
-					c=4;
-					break;
+					case 'C':
+						c=4;
+						break;
+				}
 			}
+
+		}
+		else{
+			printf("\b \b");
 		}
 
+		/* Retorna o terminal pra cooked */
+		system ("/bin/stty cooked");
 	}
 	else{
-		printf("\b \b");
+		c = getch();
+		switch(c){
+			case 72:
+				c = 1;
+				break;
+			case 80:
+				c = 2;
+				break;
+			case 75:
+				c = 3;
+				break;
+			case 77:
+				c = 4;
+				break;
+		}
 	}
-
-	/* Retorna o terminal pra cooked */
-	system ("/bin/stty cooked");
+	
 	
 	return c;
 }
@@ -57,7 +102,7 @@ int input_direcional(){
 int seguranca(int matriz[N][N], int linha,
                        int col, int num){
 
-	/* Verifica se o conteúdo de uma posição é válido ou não */
+	/* Verifica se o conteÃºdo de uma posiÃ§Ã£o Ã© vÃ¡lido ou nÃ£o */
 
     int iniciarLinha = linha - linha % 3,
                  iniciartCol = col - col % 3; 
@@ -88,7 +133,7 @@ void gotoxy(int x,int y)
 void exibe_grade(int arranjo[N][N], int matriz_secundaria[N][N]){
 	int i,j,aux;
 
-	system("clear");
+	limpa_tela();
 	printf("\033[0;37m");
 
 	printf("\n\n");
@@ -141,6 +186,9 @@ printf("\t\t   | __| | | | | |   \\ | _ | | |/ / | | | |\n");
 printf("\t\t   |_  | | |_| | | | | ||_|| |   /  | |_| |\n");
 printf("\t\t   |___| |_____| |___| |___| |_|\\_\\ |_____| v1.0\n");
 printf("\033[0;37m");
+if(checa_SO()){
+	printf("windows");
+}
 }
 
 
@@ -148,7 +196,7 @@ void exibe_menu(int opt){
 	
 	int i;
 
-	system("clear");
+	limpa_tela();
 	show_ASCII();
 	opt = 3 - opt;
 	printf("\n\n");
@@ -191,10 +239,10 @@ int menu_inicial(){
 }
 
 void help(){
-	system("clear");
-	printf("\tSudoku, por vezes escrito Su Doku (数独 'sūdoku') é um jogo baseado na \n");
+	limpa_tela();
+	printf("\tSudoku, por vezes escrito Su Doku é um jogo baseado na \n");
 	printf("colocação lógica de números. O objetivo do jogo é a colocação de números \n");
-	printf("de 1 a 9 em cada uma das células vazias numa grade de 9x9,constituída por\n"); 
+	printf("de 1 a 9 em cada uma das células vazias numa grade de 9x9, constituída por\n"); 
 	printf("3x3 subgrades chamadas regiões. O quebra-cabeça contém algumas pistas \n"); 
 	printf("pistas inicias, que são números inseridos em algumas células, de maneira\n");
 	printf("a permitir uma indução ou dedução dos números em células que estejam vazias.\n");
@@ -241,7 +289,7 @@ int gera_jogo(int matriz[9][9])
 {
     int i,j, numero;
 
-    /* a matriz contendo os conteúdos das casas do tabuleiro */
+    /* a matriz contendo os conteÃºdos das casas do tabuleiro */
 	for(i=0;i<9;i++){
 		for(j=0;j<9;j++){
 			matriz[i][j] = 0;
@@ -321,7 +369,7 @@ int game_over(int matriz[9][9]){
 /* ================================================================================================================== */
 
 void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
-	/* Movimentação pelas casas do tabuleiro. Chama a função exibe_grade() passando as coordenadas do cursor */
+	/* MovimentaÃ§Ã£o pelas casas do tabuleiro. Chama a funÃ§Ã£o exibe_grade() passando as coordenadas do cursor */
 	
 	int x=4+3+9+12, y=3+2;
 	int tecla_apertada=0;
@@ -372,7 +420,7 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 	}
 
 	if(game_over(matriz)==0){
-		system("clear");
+		limpa_tela();
 		gotoxy(0,0);
 		printf("Parabens, você venceu! *clap clap*\n");
 		input_direcional();
@@ -385,7 +433,7 @@ void movimento(int matriz[9][9], int matriz_secundaria[9][9]){
 /* ================================================================================================================== */
 
 void sorterar_linhas_colunas(int coordenadas_sorteadas[], int quantos){ 
-    /* pega um array de 'quantos' inteiros e preenche com dezenas aleatórias únicas representando coordendas */
+    /* pega um array de 'quantos' inteiros e preenche com dezenas aleatÃ³rias Ãºnicas representando coordendas */
 
     int linha_sorteada, 
         coluna_sorteada, 
@@ -433,7 +481,7 @@ void exibe_dificuldades(int opt){
 	
 	int i;
 
-	system("clear");
+	limpa_tela();
 	show_ASCII();
 
 	opt = 3 - opt;
@@ -452,8 +500,8 @@ int dificuldade(){
 
 	/*
 	OPCOES:
-	1 - Fácil (60 pistas +-)
-	2 - Médio (40 pistas +-)
+	1 - FÃ¡cil (60 pistas +-)
+	2 - MÃ©dio (40 pistas +-)
 	3 - Hardcore (20 pistas +-)
 	*/
 
@@ -485,12 +533,13 @@ int main(){
 	int dificuldade_selecionada;
 	int coordenadas_sorteadas[81];
 	
+	if(checa_SO()==1) setlocale(LC_ALL,"Portuguese");
 
 	
 
 	int Jogo1[N][N];
 
-    /* a matriz que diz quais casas são fixas ou mutáveis */
+    /* a matriz que diz quais casas sÃ£o fixas ou mutÃ¡veis */
     int Jogo2[N][N];
 
 	    
@@ -501,7 +550,7 @@ int main(){
 			
 			gera_jogo(Jogo1);
 
-			/* gera posições zeradas pelo parâmetro 'dificuldade' */
+			/* gera posiÃ§Ãµes zeradas pelo parÃ¢metro 'dificuldade' */
 			/* menor que 11 trava o jogo (bug)*/
 			dificuldade_selecionada = dificuldade();
 
@@ -524,7 +573,7 @@ int main(){
 		next = menu_inicial();
 	}
 
-	system("clear");
+	limpa_tela();
 	
 
 	return 0;
